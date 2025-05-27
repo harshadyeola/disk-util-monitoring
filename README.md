@@ -19,6 +19,10 @@ The solution uses the following AWS services:
 - AWS Systems Manager: To execute Ansible playbooks across EC2 instances
 - AWS CloudWatch: For metrics storage, visualization, and alerting
 - Ansible: For collecting disk utilization metrics
+
+
+![ec2_disk_monitoring](https://github.com/user-attachments/assets/198d37ba-63cd-4858-a763-6ea3ba13eda9)
+
 ## Prerequisites
 
 - AWS CLI installed and configured
