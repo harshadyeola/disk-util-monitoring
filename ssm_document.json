@@ -1,0 +1,20 @@
+{
+    "schemaVersion": "0.3",
+    "description": "Run Ansible Playbook for Disk Usage",
+    "parameters": {
+        "InstanceIds": {
+            "type": "StringList",
+            "description": "Target EC2 instances"
+        }
+    },
+    "mainSteps": [
+        {
+            "name": "runAnsiblePlaybook",
+            "action": "AWS-RunAnsiblePlaybook",
+            "inputs": {
+                "playbook": "disk_usage.yml",
+                "instanceIds": "{{ InstanceIds }}"
+            }
+        }
+    ]
+}

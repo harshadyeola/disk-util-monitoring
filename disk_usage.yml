@@ -1,0 +1,39 @@
+---
+- name: Collect Disk Usage Metrics
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: Get disk usage information
+      shell: df -h
+      register: disk_usage
+      
+    - name: Parse disk usage data
+      set_fact:
+        parsed_disk_usage: "{{ disk_usage.stdout_lines[1:] | 
+          map('regex_replace', '^\\s+', '') | 
+          map('split', ' ') | 
+          list }}"
+        
+    - name: Send metrics to CloudWatch
+      aws_metrics:
+        namespace: "DiskUtilization"
+        metric_name: "DiskUsagePercent"
+        value: "{{ item[4] | regex_replace('%','') }}"
+        dimensions:
+          Filesystem: "{{ item[0] }}"
+          MountPoint: "{{ item[5] }}"
+          InstanceId: "{{ ansible_ec2_instance_id }}"
+      loop: "{{ parsed_disk_usage }}"
+      
+    - name: Create alert if disk usage exceeds threshold
+      aws_cloudwatch_alarm:
+        name: "HighDiskUsage-{{ ansible_ec2_instance_id }}"
+        metric: "DiskUsagePercent"
+        namespace: "DiskUtilization"
+        statistic: "Average"
+        comparison: "GreaterThanThreshold"
+        threshold: 80
+        period: 300
+        evaluation_periods: 2
+        alarm_actions: ["arn:aws:sns:region:account:topic"]
