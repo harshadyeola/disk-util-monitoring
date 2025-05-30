@@ -28,6 +28,7 @@ The solution uses the following AWS services:
 - AWS CLI installed and configured
 - Ansible installed
 - Proper IAM permissions to create and manage resources across accounts
+
 ## Setup
 
 1. Set up AWS Organizations
@@ -35,6 +36,47 @@ The solution uses the following AWS services:
 3. Deploy Systems Manager configuration
 4. Create and upload Ansible playbook
 5. Configure CloudWatch dashboards and alarms
+
+## Deploy the Solution
+
+To deploy the solution:
+
+Install dependencies:
+```
+npm install
+```
+Bootstrap CDK in each account:
+```
+cdk bootstrap aws://ACCOUNT-NUMBER/REGION
+```
+Deploy the stacks:
+```
+cdk deploy --all
+```
+The deployment process will:
+
+Create the S3 bucket
+Upload the Ansible playbook to the bucket
+Validate the playbook
+Create all other resources (IAM roles, SSM automation, etc.)
+To verify the deployment:
+
+# List contents of the S3 bucket
+```
+aws s3 ls s3://ansible-playbooks-${ACCOUNT_ID}-${REGION}
+```
+
+# Verify the SSM automation document
+```
+aws ssm get-document --name DiskUtilization-Monitoring
+```
+
+# Test the automation
+```
+aws ssm start-automation-execution \
+  --document-name DiskUtilization-Monitoring \
+  --parameters "InstanceIds=[i-1234567890abcdef0]"
+```
 
 ## Usage
 
@@ -48,6 +90,7 @@ The solution uses the following AWS services:
 - `disk_usage.yml`: Ansible playbook for collecting disk usage metrics
 - `ssm_document.json`: Systems Manager Automation document for running the Ansible playbook
 - `iam_policy.json`: IAM policy for cross-account access
+
 ## Scaling
 
 The solution is designed to scale as new AWS accounts are added:
@@ -62,15 +105,12 @@ The solution is designed to scale as new AWS accounts are added:
 - Regularly update the Ansible playbook as needed
 - Review and adjust CloudWatch alarms and thresholds
 - Perform periodic security reviews of IAM policies and roles
+
 ## Troubleshooting
 
 - Check Systems Manager execution history for playbook run status
 - Review CloudWatch Logs for detailed execution logs
 - Verify IAM permissions if cross-account access issues occur
-## Contributing
 
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
 
-## License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details.
