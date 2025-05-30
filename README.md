@@ -38,7 +38,7 @@ The solution uses the following AWS services:
 4. Create and upload Ansible playbook
 5. Configure CloudWatch dashboards and alarms
 
-## Deploy the Solution
+### Deploy the Solution
 
 To deploy the solution:
 
@@ -62,35 +62,22 @@ Validate the playbook
 Create all other resources (IAM roles, SSM automation, etc.)
 To verify the deployment:
 
-# List contents of the S3 bucket
+### List contents of the S3 bucket
 ```
 aws s3 ls s3://ansible-playbooks-${ACCOUNT_ID}-${REGION}
 ```
 
-# Verify the SSM automation document
+### Verify the SSM automation document
 ```
 aws ssm get-document --name DiskUtilization-Monitoring
 ```
 
-# Test the automation
+### Test the automation
 ```
 aws ssm start-automation-execution \
   --document-name DiskUtilization-Monitoring \
   --parameters "InstanceIds=[i-1234567890abcdef0]"
 ```
-
-## Usage
-
-1. The Ansible playbook is automatically executed on a schedule via Systems Manager.
-2. Disk utilization metrics are collected and sent to CloudWatch.
-3. CloudWatch Dashboards provide a centralized view of disk utilization across all accounts.
-4. Alerts are triggered when disk usage exceeds defined thresholds.
-
-## Files
-
-- `disk_usage.yml`: Ansible playbook for collecting disk usage metrics
-- `ssm_document.json`: Systems Manager Automation document for running the Ansible playbook
-- `iam_policy.json`: IAM policy for cross-account access
 
 ## Scaling
 
